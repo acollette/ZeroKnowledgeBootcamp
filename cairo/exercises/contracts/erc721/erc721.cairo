@@ -9,6 +9,19 @@ from openzeppelin.introspection.ERC165 import ERC165
 from openzeppelin.token.erc721.library import ERC721
 
 //
+// Storage
+//
+
+@storage_var
+func counter() -> (count: Uint256) {
+}
+
+@storage_var
+func og_owner(tokenId: Uint256) -> (owner: felt) {
+}
+
+
+//
 // Constructor
 //
 
@@ -130,8 +143,14 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 @external
 func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(to: felt, new_token_id: Uint256) {
     Ownable.assert_only_owner();
+    let (id) = counter.read();
+    let one: Uint256 = Uint256(1,0);
+    let (increment_id, _) = uint256_add(id, one);
+    counter.write(increment_id);
 
-    ERC721._mint(to, new_token_id);
+    og_owner.write(id, to);
+
+    ERC721._mint(to, id);
     return ();
 }
 
